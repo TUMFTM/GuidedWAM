@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GuidedWAM</title>
+<meta name="description" content="GuidedWAM: training-free energy guidance that injects driving objectives into frozen world action models at sampling time.">
+<style>
+  :root{
+    --ink:#15181d; --muted:#5b6472; --line:#e6e8ec; --bg:#ffffff; --soft:#f6f7f9;
+    --accent:#2f5fe0; --accent-ink:#1f47b3; --maxw:860px;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.6; font-size:17px;
+  }
+  a{color:var(--accent); text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 20px}
+  header{padding:56px 0 28px; text-align:center; border-bottom:1px solid var(--line)}
+  h1{font-size:32px; line-height:1.25; margin:0 0 18px; letter-spacing:-.01em}
+  .venue{display:inline-block; font-size:13px; font-weight:600; color:var(--accent-ink);
+    background:#eef2fd; border:1px solid #dbe4fb; padding:4px 11px; border-radius:999px; margin-bottom:20px}
+  .authors{font-size:18px; margin:6px 0 2px}
+  .authors a{color:var(--ink)}
+  .affil{color:var(--muted); font-size:15px; margin:2px 0 22px}
+  .sup{color:var(--accent-ink); font-size:.8em; vertical-align:super}
+  .btns{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:8px}
+  .btn{display:inline-flex; align-items:center; gap:7px; padding:9px 16px; border-radius:999px;
+    background:var(--ink); color:#fff; font-size:15px; font-weight:600; border:1px solid var(--ink)}
+  .btn:hover{text-decoration:none; opacity:.9}
+  .btn.alt{background:#fff; color:var(--ink); border-color:var(--line)}
+  .btn.alt:hover{border-color:#c9cdd4; opacity:1}
+  .btn.off{background:var(--soft); color:#9aa1ac; border-color:var(--line); cursor:not-allowed; pointer-events:none}
+  .btn.off small{font-weight:500; font-size:12px}
+  section{padding:34px 0; border-bottom:1px solid var(--line)}
+  h2{font-size:22px; margin:0 0 14px; letter-spacing:-.01em}
+  h3{font-size:18px; margin:28px 0 10px}
+  p{margin:0 0 16px}
+  .lead{color:#333}
+  .tldr{background:#eef2fd; border:1px solid #dbe4fb; border-radius:12px; padding:18px 20px; font-size:18px}
+  .tldr b{color:var(--accent-ink)}
+  figure{margin:22px 0 6px; text-align:center}
+  figure img{max-width:100%; height:auto; border:1px solid var(--line); border-radius:10px; background:var(--soft)}
+  figcaption{color:var(--muted); font-size:14px; margin-top:10px; text-align:left}
+  .imgph{display:flex; align-items:center; justify-content:center; min-height:180px;
+    border:1px dashed #c9cdd4; border-radius:10px; color:var(--muted); font-size:14px; background:var(--soft); padding:20px; text-align:center}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:22px}
+  .grid3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px}
+  .card{background:var(--soft); border:1px solid var(--line); border-radius:12px; padding:18px 20px}
+  .stat{font-size:15px}
+  .stat b{font-size:26px; display:block; color:var(--accent-ink); line-height:1.1; margin-bottom:2px}
+  .findings{list-style:none; padding:0; margin:0}
+  .findings li{padding:10px 0 10px 26px; position:relative; border-top:1px solid var(--line)}
+  .findings li:first-child{border-top:0}
+  .findings li::before{content:"→"; position:absolute; left:0; color:var(--accent); font-weight:700}
+  .tablewrap{overflow-x:auto; margin:8px 0 6px}
+  table{border-collapse:collapse; width:100%; font-size:15px}
+  th,td{padding:8px 10px; border-bottom:1px solid var(--line); text-align:right; white-space:nowrap}
+  th:first-child,td:first-child{text-align:left}
+  thead th{border-bottom:2px solid var(--ink); font-weight:600}
+  th.l,td.l{text-align:left}
+  td.best{font-weight:700}
+  td.gain{color:var(--accent-ink); font-weight:600}
+  .note{color:var(--muted); font-size:14px; margin-top:8px}
+  .pending{color:var(--muted); font-style:italic}
+  pre{background:#0f1218; color:#e7e9ee; border-radius:12px; padding:16px 18px; overflow-x:auto;
+    font-size:13.5px; line-height:1.55; margin:0}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .bibhead{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px}
+  .copy{cursor:pointer; font-size:13px; font-weight:600; color:var(--ink); background:#fff;
+    border:1px solid var(--line); border-radius:8px; padding:6px 12px}
+  .copy:hover{border-color:#c9cdd4}
+  footer{padding:26px 0 48px; text-align:center; color:var(--muted); font-size:14px}
+  @media (max-width:640px){
+    h1{font-size:25px} body{font-size:16px} .grid2,.grid3{grid-template-columns:1fr}
+    header{padding:40px 0 22px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="venue">WACV 2027 Workshop on World Action Models for Autonomous Driving (WAM-AD)</div>
+    <h1>GuidedWAM: Training-Free Energy Guidance for World Action Models in Autonomous Driving</h1>
+    <div class="authors">
+      Xiyan Su<span class="sup">1,3</span>,
+      Finn Rasmus Schäfer<span class="sup">2,3</span>,
+      Hojun Lim<span class="sup">1,3</span>,
+      Frank Diermeyer<span class="sup">1,3</span>,
+      Johannes Betz<span class="sup">2,3</span>,
+      Markus Lienkamp<span class="sup">1,3</span>
+    </div>
+    <div class="affil">
+      <span class="sup">1</span>Institute of Automotive Technology (FTM) ·
+      <span class="sup">2</span>Professorship Autonomous Vehicle Systems (AVS) ·
+      <span class="sup">3</span>Munich Institute of Robotics and Machine Intelligence (MIRMI)<br>
+      Technical University of Munich
+    </div>
+    <div class="btns">
+      <a class="btn" href="https://arxiv.org/pdf/2611.07912" id="paper-link">📄 Paper</a>
+      <a class="btn alt" href="https://arxiv.org/abs/2611.07912" id="arxiv-link">📚 arXiv</a>
+      <a class="btn alt" href="https://github.com/TUMFTM/GuidedWAM" id="code-link">💻 Code</a>
+      <!-- Greyed out until the road-edge network weights are published. To enable: remove class "off", set href. -->
+      <a class="btn off" href="#" id="hf-link" aria-disabled="true" tabindex="-1">🤗 Hugging Face <small>(coming soon)</small></a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section id="tldr">
+    <h2>TL;DR</h2>
+    <p class="tldr">
+      A world action model fixes its driving objectives when training ends.
+      <b>GuidedWAM</b> adds new objectives to a <b>frozen</b> model at sampling time:
+      each objective is a differentiable energy on the sampler's clean estimate of the plan,
+      and its gradient is added to the model's velocity at every denoising step.
+      No retraining and no backpropagation through the network.
+      On the NAVSIM&nbsp;v2 hard split it improves three released models by
+      <b>2.2 to 3.8 EPDMS</b> at <b>under 10%</b> extra sampling time per step.
+    </p>
+  </section>
+
+  <section id="abstract">
+    <h2>Abstract</h2>
+    <!-- Keep in sync with the camera-ready abstract. The gains are the three-seed means of the revision (2.2 to 3.8).
+         The submitted abstract said 1.8 to 3.6, measured against single stock runs. -->
+    <p>
+      World action models (WAMs) for autonomous driving couple the driving policy and
+      the visual world model in a single generative network whose objectives are fixed
+      post-training. Conditioning on a new driving objective requires retraining. We
+      study energy guidance as a general mechanism and present <b>GuidedWAM</b>, a
+      model-agnostic framework for injecting driving objectives into frozen WAMs at
+      sampling time. Our framework constructs each objective as differentiable energies
+      on the sampler's intermediate clean-action estimate, which needs only forward
+      access to the frozen model. On the NAVSIM&nbsp;v2
+      hard-split, guidance improves all three frozen, publicly released WAMs by 2.2 to
+      3.8 EPDMS, averaged over three sampler seeds, and adds less than 10% to the
+      sampling time per step. These results position energy guidance as a practical
+      post-training control channel for WAMs.
+    </p>
+  </section>
+
+  <section id="method">
+    <h2>Method</h2>
+    <figure>
+      <img src="static/images/overview.png" alt="Method overview"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+      <div class="imgph" style="display:none">Add <code>static/images/overview.png</code> to show the method overview here.</div>
+      <figcaption>
+        At every denoising step, the frozen model predicts a velocity. From it we form
+        the one-step clean estimate of the plan, evaluate the energies on it, and add
+        their gradient to the velocity. The gradient is taken with respect to the clean
+        estimate only, so the model is run forward once per step, exactly as in
+        unguided sampling.
+      </figcaption>
+    </figure>
+    <figure>
+      <img src="static/images/energy_gradients.png" alt="The four energies and the direction of their gradients"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+      <div class="imgph" style="display:none">Add <code>static/images/energy_gradients.png</code> here.</div>
+      <figcaption>
+        The four energies on one plan: drivable area, lane keeping, driving direction and
+        a speed cap. Red arrows show the direction in which each gradient moves the plan.
+      </figcaption>
+    </figure>
+    <ul class="findings" style="margin-top:18px">
+      <li><b>Energies on the clean estimate.</b> A driving objective is a differentiable
+        function of the planned trajectory, for example the distance of the vehicle
+        footprint to the road edge.</li>
+      <li><b>Jacobian-free.</b> The network Jacobian is dropped, so guidance needs only
+        forward access to the released checkpoint.</li>
+      <li><b>Scheduled over the noise level.</b> A trapezoidal window applies the
+        correction once the clean estimate is informative and stops before the last
+        steps, which are left to the frozen model.</li>
+    </ul>
+  </section>
+
+  <section id="results">
+    <h2>Primary results</h2>
+    <p class="lead">
+      NAVSIM&nbsp;v2 hard split, three frozen and publicly released world action models.
+      Guidance uses one camera-only drivable-area energy and no privileged information
+      at inference.
+    </p>
+    <div class="grid3" style="margin-bottom:22px">
+      <div class="card stat"><b>+3.8</b>EPDMS on DriveLaW<br>29.8 → 33.6</div>
+      <div class="card stat"><b>+2.3</b>EPDMS on DriveWAM<br>35.5 → 37.8</div>
+      <div class="card stat"><b>+2.2</b>EPDMS on SimWAM<br>37.3 → 39.6</div>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Model</th><th>Stock</th><th>+ Energy guidance</th><th>Gain</th><th>DAC</th><th>Comfort (EC)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>DriveLaW</td><td>29.8 ± 0.3</td><td class="best">33.6 ± 0.4</td><td class="gain">+3.8</td><td>67.2 → 71.5</td><td>57.1 → 57.8</td></tr>
+          <tr><td>DriveWAM</td><td>35.5 ± 0.7</td><td class="best">37.8 ± 0.8</td><td class="gain">+2.3</td><td>76.0 → 77.6</td><td>72.7 → 71.4</td></tr>
+          <tr><td>SimWAM</td><td>37.3 ± 0.6</td><td class="best">39.6 ± 0.5</td><td class="gain">+2.2</td><td>78.6 → 79.8</td><td>72.1 → 70.4</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">
+      EPDMS in points, mean and standard deviation over three sampler seeds for both the
+      stock and the guided sampler. DAC is the drivable-area compliance and EC the
+      two-frame comfort, both on the synthetic scenes. Gains are computed before rounding.
+    </p>
+
+    <h3>Guidance against post-hoc projection</h3>
+    <p>
+      A projection of the finished plan onto the same constraint scores higher, but it
+      bends the plan abruptly at the point of violation. Guidance spreads the correction
+      over the whole plan and keeps the two-frame comfort close to the stock model.
+    </p>
+    <figure>
+      <img src="static/images/case_guided_vs_projection.png" alt="Guidance against projection on one scene"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+      <div class="imgph" style="display:none">Add <code>static/images/case_guided_vs_projection.png</code> (paper Figure&nbsp;1) here.</div>
+      <figcaption>
+        One scene where both methods recover the drivable-area compliance.
+        <b>Left:</b> front camera with the three plans. <b>Right:</b> bird's-eye view
+        with the drivable-area energy field. The stock plan (grey) leaves the drivable
+        area. The projection (blue) follows it until the constraint is violated and then
+        changes direction. Guidance (orange) corrects along the whole plan.
+      </figcaption>
+    </figure>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Model</th><th class="l">Method</th><th>EPDMS ↑</th><th>Off-road ↓</th><th>Comfort (EC) ↑</th></tr>
+        </thead>
+        <tbody>
+          <tr><td rowspan="3">DriveLaW</td><td class="l">stock</td><td>30.0</td><td>26.0</td><td>57.9</td></tr>
+          <tr><td class="l">guidance</td><td>34.8</td><td>22.7</td><td class="best">58.0</td></tr>
+          <tr><td class="l">projection</td><td class="best">37.7</td><td class="best">16.6</td><td>51.2</td></tr>
+          <tr><td rowspan="3">DriveWAM</td><td class="l">stock</td><td>35.9</td><td>20.9</td><td class="best">73.0</td></tr>
+          <tr><td class="l">guidance</td><td>39.2</td><td>18.5</td><td>71.4</td></tr>
+          <tr><td class="l">projection</td><td class="best">40.3</td><td class="best">15.2</td><td>66.0</td></tr>
+          <tr><td rowspan="3">SimWAM</td><td class="l">stock</td><td>37.8</td><td>18.7</td><td class="best">72.8</td></tr>
+          <tr><td class="l">guidance</td><td>39.2</td><td>18.0</td><td>71.6</td></tr>
+          <tr><td class="l">projection</td><td class="best">41.0</td><td class="best">14.0</td><td>65.3</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">
+      Both methods use the map-based drivable area with a margin of 0.5&nbsp;m, one
+      seed. Off-road is the share of synthetic scenes that fail the drivable-area
+      compliance, in percent. EC is the two-frame comfort on the synthetic scenes.
+    </p>
+  </section>
+
+  <section id="ablations">
+    <h2>Ablations</h2>
+
+    <h3>Guidance strength</h3>
+    <figure>
+      <img src="static/images/fig_strength.png" alt="EPDMS against guidance strength"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+      <div class="imgph" style="display:none">Add <code>static/images/fig_strength.png</code> here.</div>
+      <figcaption>
+        EPDMS against the guidance strength on a log axis, camera-only drivable-area
+        energy. Dashed lines are the stock models. Each model has a range of strengths
+        that improves on stock and collapses beyond it.
+      </figcaption>
+    </figure>
+
+    <h3>Guidance window over the noise level</h3>
+    <figure>
+      <img src="static/images/fig_window_shape.png" alt="Window shape against guidance strength" style="max-width:520px;width:100%"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+      <div class="imgph" style="display:none">Add <code>static/images/fig_window_shape.png</code> here.</div>
+      <figcaption>
+        40 DriveWAM scenes that fail the drivable-area compliance. <b>Top:</b> share of
+        scenes whose final plan jitters. <b>Bottom:</b> displacement of the guided plan
+        from the stock plan. The trapezoidal window stays stable over a wider range of
+        strengths than a uniform weight.
+      </figcaption>
+    </figure>
+
+    <h3>Composition of energies</h3>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Model</th><th>Stock</th><th>LK</th><th>DA</th><th>DD</th><th>LK+DA</th><th>DA+DD</th><th>LK+DA+DD</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>DriveLaW</td><td>30.0</td><td>31.1</td><td>34.0</td><td>30.6</td><td>33.3</td><td class="best">34.8</td><td>33.0</td></tr>
+          <tr><td>DriveWAM</td><td>35.9</td><td>37.5</td><td>39.2</td><td>36.4</td><td>39.5</td><td class="best">40.0</td><td>39.6</td></tr>
+          <tr><td>SimWAM</td><td>37.8</td><td>37.9</td><td>39.2</td><td>37.8</td><td>38.2</td><td class="best">39.6</td><td>38.9</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">
+      EPDMS with energies built from privileged map information: lane keeping (LK),
+      drivable area (DA) and driving direction (DD). Drivable area with driving
+      direction scores best on all three models. Adding lane keeping does not help,
+      since it acts on every scene.
+    </p>
+
+    <h3>Cost of guidance</h3>
+    <div class="grid2">
+      <div class="card stat"><b>0.1 to 1.9 ms</b>per step for the Jacobian-free correction, under 10% of a forward pass</div>
+      <div class="card stat"><b>17 to 67 ms</b>per step for the exact gradient through the network</div>
+    </div>
+    <p class="note">
+      One NVIDIA RTX 4090. Forward passes take 16 to 48&nbsp;ms per step depending on the
+      model. At the same strength the exact gradient scores lower on all three models:
+      29.9 against 34.1 on DriveLaW, 36.3 against 37.7 on DriveWAM and 37.9 against 40.0
+      on SimWAM.
+    </p>
+
+    <h3>Speed cap as a new objective</h3>
+    <p>
+      A speed cap is a single number given at inference and needs no map or perception
+      input. Guidance removes most plans that exceed the cap on all three models. Ego
+      progress and comfort fall with it, since the benchmark rewards progress and the
+      plan has to decelerate. Together with the camera-only drivable-area energy (DA),
+      the gain in drivable-area compliance is kept.
+    </p>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Model</th><th class="l">Arm</th><th>Above cap ↓</th><th>EP ↑</th><th>DAC ↑</th><th>EPDMS ↑</th></tr>
+        </thead>
+        <tbody>
+          <tr><td rowspan="3">DriveWAM</td><td class="l">stock</td><td>49.2</td><td>87.0</td><td>76.4</td><td>35.9</td></tr>
+          <tr><td class="l">speed cap</td><td class="best">0.2</td><td>73.8</td><td>80.8</td><td>32.1</td></tr>
+          <tr><td class="l">speed cap + DA</td><td>0.5</td><td>73.8</td><td class="best">83.8</td><td>35.5</td></tr>
+          <tr><td rowspan="3">SimWAM</td><td class="l">stock</td><td>47.2</td><td>86.2</td><td>78.5</td><td>37.8</td></tr>
+          <tr><td class="l">speed cap</td><td class="best">9.9</td><td>76.8</td><td>84.0</td><td>33.7</td></tr>
+          <tr><td class="l">speed cap + DA</td><td>11.0</td><td>76.9</td><td class="best">84.2</td><td>34.8</td></tr>
+          <tr><td rowspan="3">DriveLaW</td><td class="l">stock</td><td>47.3</td><td>84.7</td><td>67.4</td><td>30.0</td></tr>
+          <tr><td class="l">speed cap</td><td class="best">2.1</td><td>74.2</td><td>75.3</td><td>28.3</td></tr>
+          <tr><td class="l">speed cap + DA</td><td>6.5</td><td>74.4</td><td class="best">78.5</td><td>30.6</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">
+      Cap of 5&nbsp;m/s, full hard split, one seed. "Above cap" is the share of plans
+      with a waypoint speed above the cap, in percent. EP is the ego progress and DAC the
+      drivable-area compliance on the synthetic scenes. With a cap of 7.5&nbsp;m/s the
+      share falls from about 22% to at most 2% on all three models.
+    </p>
+
+    <h3>Projection with a smoothness term</h3>
+    <p>
+      Does guidance keep more comfort only because the projector has no smoothness
+      term? Adding one to the projector recovers a third to a half of the comfort gap
+      and does not reach the comfort of the guided plans at any weight.
+    </p>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Comfort (EC) ↑</th><th>Stock</th><th>Guidance</th><th>Projection</th><th>+ smooth 0.1</th><th>+ smooth 1</th><th>+ smooth 10</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>DriveLaW</td><td>57.9</td><td class="best">58.0</td><td>51.2</td><td>52.0</td><td>54.4</td><td>54.0</td></tr>
+          <tr><td>DriveWAM</td><td>73.0</td><td class="best">71.4</td><td>66.0</td><td>66.1</td><td>66.9</td><td>66.9</td></tr>
+          <tr><td>SimWAM</td><td>72.8</td><td class="best">71.6</td><td>65.3</td><td>65.8</td><td>67.0</td><td>67.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">
+      Two-frame comfort on the synthetic scenes, map-based drivable area, one seed. Bold
+      marks the best value among guidance and the projection variants. The projection
+      keeps its higher EPDMS at every weight.
+    </p>
+
+    <h3>Stabilization components</h3>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>DriveWAM, full hard split</th><th>EPDMS ↑</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>stock</td><td>35.9</td></tr>
+          <tr><td>guidance with the trapezoidal window</td><td class="best">37.7</td></tr>
+          <tr><td>uniform window instead</td><td>31.2</td></tr>
+          <tr><td>per-energy gradient normalization instead of fixed weights</td><td class="best">37.7</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">
+      One seed. The window carries the stability: a uniform weight falls below the stock
+      model. The velocity bound is not active at any strength of the strength study and
+      only acts as a safeguard far above the operating point.
+    </p>
+
+    <h3>Errors of the road-edge field</h3>
+    <p>
+      Shifting the predicted road edge by up to 1&nbsp;m inward or outward, or adding
+      noise of up to 0.5&nbsp;m, keeps SimWAM between 39.3 and 39.8 EPDMS, against 40.0
+      with the unperturbed field and 37.8 without guidance.
+    </p>
+  </section>
+
+  <section id="qualitative">
+    <h2>Qualitative results</h2>
+    <p>
+      Seven scenes of the NAVSIM&nbsp;v2 hard split on which the stock DriveWAM plan
+      leaves the drivable area, and both guidance and the post-hoc projection recover it.
+      <b>Left:</b> front camera with the stock (grey), guided (orange) and projected
+      (blue) plans. <b>Right:</b> bird's-eye view with the drivable-area energy field.
+      The projection tends to change the plan at the waypoint of the violation, and
+      guidance shifts the whole plan.
+    </p>
+    <figure>
+      <img src="static/images/qual_01.jpg" alt="Qualitative result 1: stock, guided and projected plans" loading="lazy">
+    </figure>
+    <figure>
+      <img src="static/images/qual_02.jpg" alt="Qualitative result 2: stock, guided and projected plans" loading="lazy">
+    </figure>
+    <figure>
+      <img src="static/images/qual_03.jpg" alt="Qualitative result 3: stock, guided and projected plans" loading="lazy">
+    </figure>
+    <figure>
+      <img src="static/images/qual_04.jpg" alt="Qualitative result 4: stock, guided and projected plans" loading="lazy">
+    </figure>
+    <figure>
+      <img src="static/images/qual_05.jpg" alt="Qualitative result 5: stock, guided and projected plans" loading="lazy">
+    </figure>
+    <figure>
+      <img src="static/images/qual_06.jpg" alt="Qualitative result 6: stock, guided and projected plans" loading="lazy">
+    </figure>
+    <figure>
+      <img src="static/images/qual_07.jpg" alt="Qualitative result 7: stock, guided and projected plans" loading="lazy">
+    </figure>
+    <p class="note" style="margin-top:14px">
+      The scenes are selected from the 109 scenes with this outcome, and several are
+      synthetic variants of the same real scene. Both methods use the map-based drivable
+      area with a margin of 0.5&nbsp;m. The header of each panel gives the score and the
+      drivable-area compliance (DAC) of the three plans on that scene.
+    </p>
+  </section>
+
+  <section id="bibtex">
+    <div class="bibhead">
+      <h2 style="margin:0">BibTeX</h2>
+      <button class="copy" id="copybtn">Copy</button>
+    </div>
+    <pre id="bib">@inproceedings{su2027guidedwam,
+  title     = {GuidedWAM: Training-Free Energy Guidance for World Action
+               Models in Autonomous Driving},
+  author    = {Su, Xiyan and Sch{\"a}fer, Finn Rasmus and Lim, Hojun and
+               Diermeyer, Frank and Betz, Johannes and Lienkamp, Markus},
+  booktitle = {IEEE/CVF Winter Conference on Applications of Computer
+               Vision Workshops (WACVW)},
+  year      = {2027},
+  note      = {arXiv:2611.07912}
+}</pre>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    Technical University of Munich · Institute of Automotive Technology
+  </div>
+</footer>
+
+<script>
+  document.getElementById('copybtn').addEventListener('click', function(){
+    var t = document.getElementById('bib').innerText;
+    navigator.clipboard.writeText(t).then(function(){
+      var b = document.getElementById('copybtn');
+      b.textContent = 'Copied ✓';
+      setTimeout(function(){ b.textContent = 'Copy'; }, 1600);
+    });
+  });
+</script>
+</body>
+</html>

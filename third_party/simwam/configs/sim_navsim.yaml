@@ -1,0 +1,59 @@
+# @package _global_
+
+defaults:
+  - train
+  - override /task: navsim_uncond_front_384x672_1e-4
+  - _self_
+
+ckpt: null
+gpu_id: 0
+
+experiment_name: null
+
+EVALUATION:
+  split: navtest
+  output_dir: ./evaluate_results/navsim/${hydra:runtime.choices.task}/${experiment_name}/${now:%Y%m%d_%H%M%S}
+  max_samples: null
+  save_videos: true
+  save_video_limit: 50
+  save_pred_only_video: false
+  save_gt_video: false
+  infer_mode: auto
+  num_inference_steps: ${eval_num_inference_steps}
+  sigma_shift: null
+  text_cfg_scale: 1.0
+  negative_prompt: ""
+  rand_device: cpu
+  seed: 0
+  tiled: false
+  device: cuda
+  navsim_root: ./data/navsim
+  navsim_log_path: null
+  sensor_blobs_path: null
+  scene_filter: null
+  split_logs_key: null
+  split_config_path: null
+  save_actions: true
+  action_output_dir: null
+  synthetic_sensor_path: null
+  synthetic_scenes_path: null
+  overwrite: false
+  max_tokens: null
+  guidance_arm: "off"
+  guidance_fields_dir: null
+  guidance_w_dac: 1.0
+  guidance_w_nc: 1.0
+  tokens_file: null
+  # Sampling-time energy guidance (simwam.guidance); "off" keeps the stock loop.
+  guidance: "off"
+  guidance_lam: 1.0
+  guidance_clip_rel: 12.0
+  guidance_brake_to: 0.0
+  guidance_target_speed: 0.0
+
+hydra:
+  job:
+    chdir: false
+  run:
+    dir: .
+  output_subdir: null
