@@ -10,6 +10,14 @@ used for the results of the paper.
 Paper: [arXiv:2611.07912](https://arxiv.org/abs/2611.07912), WACV 2027 Workshop on World Action Models for Autonomous
 Driving. Project page: <https://tumftm.github.io/GuidedWAM/> (source in [docs/index.html](docs/index.html)).
 
+## News
+
+- **November 2026:** GuidedWAM is accepted at the
+  [WACV 2027 Workshop on World Action Models for Autonomous Driving (WAM-AD)](https://wam-ad.github.io/)
+- **November 2026:** Preprint is available on [arXiv](https://arxiv.org/abs/2611.07912).
+
+## Results
+
 The guidance is evaluated on three publicly released WAMs on the NAVSIM v2 navhard split (EPDMS):
 
 | model | stock (3 seeds) | + energy guidance (camera-only drivable area, 3 seeds) | gain |
@@ -33,6 +41,13 @@ The guidance is evaluated on three publicly released WAMs on the NAVSIM v2 navha
 | `scripts/` | fields, predictions, scoring, ablations, figures, and `scripts/paper/` per table and figure |
 | `envs/` | lock files of the four Python environments |
 
+## To do
+
+- [x] Code for the experiments of the paper
+- [x] Project page
+- [ ] Checkpoint of the camera-only road-edge network on hugging-face. Until it is released, train it with
+      `scripts/fields/build_fields.sh learned` ([docs/run.md](docs/run.md)).
+
 ## License
 
 GuidedWAM is released under the Apache License 2.0 ([LICENSE](LICENSE)).
@@ -40,3 +55,14 @@ GuidedWAM is released under the Apache License 2.0 ([LICENSE](LICENSE)).
 The code under `third_party/` belongs to its authors and keeps its own license: DriveWAM, DriveLaW and the NAVSIM
 devkit under the Apache License 2.0, SimWAM under the MIT License. [third_party/README.md](third_party/README.md) lists
 the sources and the changes made for this work.
+
+## Citation
+
+```bibtex
+@article{su2026guidedwam,
+  title   = {{GuidedWAM}: Training-Free Energy Guidance for World Action Models in Autonomous Driving},
+  author  = {Su, Xiyan and Sch{\"a}fer, Finn Rasmus and Lim, Hojun and Diermeyer, Frank and Betz, Johannes and Lienkamp, Markus},
+  journal = {arXiv preprint arXiv:2611.07912},
+  year    = {2026}
+}
+```
