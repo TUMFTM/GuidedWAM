@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+.venvs/
+data/navsim
+weights/
+exp/
+scripts/local.env
