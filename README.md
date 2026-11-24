@@ -48,6 +48,16 @@ The guidance is evaluated on three publicly released WAMs on the NAVSIM v2 navha
 - [ ] Checkpoint of the camera-only road-edge network on hugging-face. Until it is released, train it with
       `scripts/fields/build_fields.sh learned` ([docs/run.md](docs/run.md)).
 
+## Acknowledgments
+
+This work builds on the released code and checkpoints of three world action models and on the NAVSIM benchmark. We
+thank their authors for making them publicly available:
+
+- [DriveLaW](https://github.com/xiaomi-research/drivelaw)
+- [DriveWAM](https://github.com/chenshi3/DriveWAM)
+- [SimWAM](https://github.com/H-EmbodVis/SimWAM)
+- [NAVSIM](https://github.com/autonomousvision/navsim)
+
 ## License
 
 GuidedWAM is released under the Apache License 2.0 ([LICENSE](LICENSE)).

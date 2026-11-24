@@ -5,7 +5,7 @@ is kept in its directory. The changes made for GuidedWAM are listed below.
 
 | directory | project | source | base version | license |
 |---|---|---|---|---|
-| `drivewam/` | DriveWAM | release of the DriveWAM authors | commit `abbefb4` | Apache License 2.0 (`drivewam/LICENSE.txt`) |
+| `drivewam/` | DriveWAM | <https://github.com/chenshi3/DriveWAM> | commit `abbefb4` | Apache License 2.0 (`drivewam/LICENSE.txt`) |
 | `simwam/` | SimWAM | <https://github.com/H-EmbodVis/SimWAM> | commit `68b426c` | MIT License (`simwam/LICENSE`) |
 | `drivelaw/` | DriveLaW, planner part `DriveLaW-Act` only | <https://github.com/xiaomi-research/drivelaw> | commit `243e0e4` | Apache License 2.0 (`drivelaw/LICENSE`) |
 | `navsim/` | NAVSIM devkit | <https://github.com/autonomousvision/navsim>, as bundled with SimWAM | v2 | Apache License 2.0 (`navsim/LICENSE`) |
