@@ -6,7 +6,7 @@
 # (needs the navtrain logs and trainval sensor blobs). Its checkpoint lands in $GUIDEDWAM_EXP/bevsdf_run1/best.pt.
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/../env.sh"
-F=$GUIDEDWAM_ROOT/scripts/fields; TOK=$GUIDEDWAM_ROOT/data/tokens
+F=$GUIDEDWAM_ROOT/scripts/fields; TOK=$GUIDEDWAM_ROOT/data/scene_lists
 mkdir -p "$FIELDS_DIR" "$GUIDEDWAM_EXP"; cd "$GUIDEDWAM_EXP"
 shards() { # N script [env...]: run N shards in parallel
   local n=$1 py=$2 script=$3; shift 3; local pids=()

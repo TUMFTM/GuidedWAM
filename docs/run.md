@@ -90,5 +90,5 @@ run into one per-metric table, run `scripts/tables/gen_per_metric_md.py` with th
 | `scripts/figures/`, `scripts/tables/` | Figure 1, Figure 3, per-metric tables |
 | `scripts/paper/` | one script per table and figure |
 | `configs/` | DriveLaW inference config |
-| `data/tokens/` | token lists: all navhard scenes, the 40 Figure 3 scenes, Figure 1 candidates |
+| `data/scene_lists/` | lists of NAVSIM scene tokens (the scene identifiers of the dataset): all navhard scenes, the 40 Figure 3 scenes, Figure 1 candidates |
 | `envs/` | pip lock files of the four environments |

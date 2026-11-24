@@ -2,7 +2,7 @@
 and the descent direction -dE/dtau on the waypoints of a stock plan, in the ego frame (x forward, y left).
 
 Usage: fig_energy_gradients.py <pred_dir> <out.pdf> [token]   (fields venv; FIELDS_DIR and LEARNED_FIELDS from env.sh)
-Without a token, picks the scene of data/tokens/pov_bev_cases.json where all four energies are active on the plan.
+Without a token, picks the scene of data/scene_lists/pov_bev_cases.json where all four energies are active on the plan.
 """
 import json
 import os
@@ -46,7 +46,7 @@ def grads(ens, tau):
 if len(sys.argv) > 3:
     TOK = sys.argv[3]
 else:
-    cands = [t for v in json.load(open(paths.REPO / "data/tokens/pov_bev_cases.json")).values() for t in v]
+    cands = [t for v in json.load(open(paths.REPO / "data/scene_lists/pov_bev_cases.json")).values() for t in v]
     best = None
     for t in cands:
         try:

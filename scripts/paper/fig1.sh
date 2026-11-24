@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Figure 1: front camera + BEV drivable-area field with the stock, guided and projected DriveWAM plans for one scene.
-#   scripts/paper/fig1.sh <token>   (candidates: data/tokens/pov_bev_cases.json, case1_both_improve)
+#   scripts/paper/fig1.sh <token>   (candidates: data/scene_lists/pov_bev_cases.json, case1_both_improve)
 # Needs: table1.sh (dwam_stock), table2.sh (dwam_corner_l4.00, dwam_stock_proj).
 set -euo pipefail; source "$(dirname "$0")/common.sh"
 TOK=${1:?token}; V=$GUIDEDWAM_EXP/navhard_validate
